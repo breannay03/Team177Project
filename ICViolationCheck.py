@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 
 # Checks that every menu_id in MenuPage is a valid id in Menu
@@ -94,12 +95,12 @@ def check_duplicate_page_dish(menu_item):
     # Returns list of tuples of ids that have same (dish_id, menu_page_id) pair
     return duplicate_ids
 
-def run_integrity_checks():
-    # Load CSV files
-    menu = pd.read_csv('Menu.csv')
-    menu_page = pd.read_csv('MenuPage.csv')
-    menu_item = pd.read_csv('MenuItem.csv')
-    dish = pd.read_csv('Dish.csv')
+def run_integrity_checks(rawdir):
+    # Load CSV files    
+    menu      = pd.read_csv(os.path.join(rawdir, 'Menu.csv'))
+    menu_page = pd.read_csv(os.path.join(rawdir, 'MenuPage.csv'))
+    menu_item = pd.read_csv(os.path.join(rawdir, 'MenuItem.csv'))
+    dish      = pd.read_csv(os.path.join(rawdir, 'Dish.csv'))
 
     invalid_menu_ids = check_menu_id(menu_page, menu)
     invalid_menu_page_ids = check_menu_page_id(menu_item, menu_page)
@@ -126,4 +127,6 @@ def run_integrity_checks():
 
 
 if __name__ == "__main__":
-    run_integrity_checks()
+    CURDIR = os.getcwd()
+    RAWDIR = os.path.join(CURDIR, 'raw')
+    run_integrity_checks(RAWDIR)

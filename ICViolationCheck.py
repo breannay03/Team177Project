@@ -10,6 +10,25 @@ def load_csv(filedir):
     return menu, menu_page, menu_item, dish
 
 
+
+# Finds ids in MenuItem where the dish_id and menu_page_id are the same as another id
+def check_duplicate_page_dish(menu_item):
+    # Find duplicate (dish_id, menu_page_id) pairs
+    invalid_filter = menu_item.duplicated(subset=['dish_id', 'menu_page_id'], keep=False)
+    duplicate_ids = menu_item[invalid_filter]['id'].tolist()
+
+    # Returns list of tuples of ids that have same (dish_id, menu_page_id) pair
+    return duplicate_ids
+
+
+
+# Find ids in MenuItem where created_at is later than updated_at
+def check_menu_item_created_updated_time(menu_item):
+    invalid_filter = ~(pd.to_datetime(menu_item['created_at']) <= pd.to_datetime(menu_item['updated_at']))
+    return menu_item[invalid_filter]['id'].tolist()
+
+
+
 # Checks that every menu_id in MenuPage is a valid id in Menu
 def check_menu_id(menu_page, menu):
     # invalid_filter is a series of boolean values where True means MenuPage's menu_id is not an id in Menu
@@ -37,6 +56,7 @@ def check_dish_id(menu_item, dish):
 
     # Keeps only invalid ids and returns as a list
     return menu_item[invalid_filter]['id'].tolist()
+
 
 
 # Finds and merges earliest and latest dates of menu containing the corresponding dishes into the dish dataframe
@@ -102,53 +122,37 @@ def check_price_validity(menu_item, dish):
 
 
 
-# Finds ids in MenuItem where the dish_id and menu_page_id are the same as another id
-def check_duplicate_page_dish(menu_item):
-    # Counts of each (dish_id, menu_page_id) pair
-    pair_counts = menu_item.groupby(['dish_id', 'menu_page_id']).size().reset_index(name = 'count')
-
-    # Find duplicates by filtering for pairs with a count greater than 1
-    duplicates = pair_counts[pair_counts['count'] > 1]
-    duplicates = duplicates[['dish_id', 'menu_page_id']]
-
-    # Merges with menu_item and then groups by dish_id and menu_page_id to get tuples of ids with duplicates
-    only_dups = menu_item.merge(duplicates, on=['dish_id', 'menu_page_id'])
-    duplicate_ids = only_dups.groupby(['dish_id', 'menu_page_id'])['id'].apply(tuple).tolist()
-
-    # Returns list of tuples of ids that have same (dish_id, menu_page_id) pair
-    return duplicate_ids
-
 
 
 def run_integrity_checks(filedir):
     # Load CSV files
     menu, menu_page, menu_item, dish = load_csv(filedir)
 
+    dup_page_dish_ids = check_duplicate_page_dish(menu_item)
+    invalid_update_time_ids = check_menu_item_created_updated_time(menu_item)
     invalid_menu_ids = check_menu_id(menu_page, menu)
     invalid_menu_page_ids = check_menu_page_id(menu_item, menu_page)
     invalid_dish_ids = check_dish_id(menu_item, dish)
     invalid_dish_appearance_ids = check_date_validity(menu, menu_page, menu_item, dish)
     invalid_price_ids = check_price_validity(menu_item, dish)
-    dup_page_dish_ids = check_duplicate_page_dish(menu_item)
 
-    print("Number of violations for invalid menu_id in MenuPage: ", len(invalid_menu_ids))
-    print("Number of violations for invalid menu_page_id in MenuItem: ", len(invalid_menu_page_ids))
-    print("Number of violations for invalid dish_id in MenuItem: ", len(invalid_dish_ids))
-    print("Number of violations for invalid date consistency in first and last appeared in Dish: ", len(invalid_dish_appearance_ids))
-    print("Number of violations for invalid price in MenuItem: ", len(invalid_price_ids))
-    print("Number of violations for duplicate (dish_id, menu_page_id) pairs in MenuItem: ", len(dup_page_dish_ids))
-
-    return {
-        "IC1": invalid_menu_ids,
-        "IC2": invalid_menu_page_ids,
-        "IC3": invalid_dish_ids,
-        "IC4": invalid_dish_appearance_ids,
-        "IC5": invalid_price_ids,
-        "IC6": dup_page_dish_ids,
-    }
+    print(f"{len(dup_page_dish_ids)} violations for duplicate (dish_id, menu_page_id) pairs in MenuItem")
+    print(f"{len(invalid_update_time_ids)} violations for invalid update and create time in MenuItem")
+    print(f"{len(invalid_menu_ids)} violations for invalid menu_id in MenuPage")
+    print(f"{len(invalid_menu_page_ids)} violations for invalid menu_page_id in MenuItem")
+    print(f"{len(invalid_dish_ids)} violations for invalid dish_id in MenuItem")
+    print(f"{len(invalid_dish_appearance_ids)} violations for invalid dates in first and last appeared in Dish")
+    print(f"{len(invalid_price_ids)} violations for invalid price in MenuItem")
 
 
 if __name__ == "__main__":
     CURDIR = os.getcwd()
     RAWDIR = os.path.join(CURDIR, 'raw')
+    ORDIR = os.path.join(CURDIR, 'OR_cleaned')
+    CLEANDIR = os.path.join(CURDIR, 'clean')
+    
     run_integrity_checks(RAWDIR)
+    print('-'*50)
+    run_integrity_checks(ORDIR)
+    print('-'*50)
+    run_integrity_checks(CLEANDIR)

@@ -1,4 +1,5 @@
 .DS_Store
 raw/MenuItem.csv
 OR_cleaned/MenuItem.csv
+clean/MenuItem.csv
 *.ipynb

@@ -66,7 +66,10 @@ def clean_price_dish(menu_item, dish):
     dish_mi['lowest_price'].fillna(dish_mi['price_low'], inplace=True)
     dish_mi['highest_price'].fillna(dish_mi['price_high'], inplace=True)
     cols_keep = dish.columns
-    return dish_mi[cols_keep].drop_duplicates()
+    dish_mi = dish_mi[cols_keep].drop_duplicates()
+    dish_mi['first_appeared'] = dish_mi['first_appeared'].astype(int)
+    dish_mi['last_appeared'] = dish_mi['last_appeared'].astype(int)
+    return dish_mi
 
 def clean_price_menu_item(menu_item, dish):
     print('clean_price_menu_item')

@@ -95,25 +95,92 @@ def clean_price_menu_item(menu_item, dish):
 if __name__=='__main__':
     CURDIR = os.getcwd()
     OR_DIR = os.path.join(CURDIR, 'OR_cleaned')
-    CLEANDIR = os.path.join(CURDIR, 'clean')
-
+    CLEAN_DIR = os.path.join(CURDIR, 'clean')
+    
+    # @BEGIN main
+    # @PARAM OR_DIR
+    # @PARAM CLEAN_DIR
+    # @OUT menu      @AS menu_full_cleaned      @URI file:{CLEAN_DIR}/Menu.csv
+    # @OUT menu_page @AS menu_page_full_cleaned @URI file:{CLEAN_DIR}/MenuPage.csv
+    # @OUT menu_item @AS menu_item_full_cleaned @URI file:{CLEAN_DIR}/MenuItem.csv
+    # @OUT dish      @AS dish_full_cleaned      @URI file:{CLEAN_DIR}/Dish.csv
+    
+    
+    
+    # @BEGIN load_data
+    # @PARAM OR_DIR
+    # @OUT menu      @AS menu_full_cleaned    @URI file:{CLEAN_DIR}/Menu.csv
+    # @OUT menu_page @AS menu_page_OR_cleaned @URI file:{OR_DIR}/MenuPage.csv
+    # @OUT menu_item @AS menu_item_OR_cleaned @URI file:{OR_DIR}/MenuItem.csv
+    # @OUT dish      @AS dish_OR_cleaned      @URI file:{OR_DIR}/Dish.csv
     menu, menu_page, menu_item, dish = icv.load_csv(OR_DIR)
+    # @END load_data
     
+    
+    
+    # @BEGIN clean_menu_item_created_updated_time
+    # @IN menu_item @AS menu_item_OR_cleaned
+    # @OUT menu_item @AS menu_item_correct_update_time
     menu_item = clean_menu_item_created_updated_time(menu_item)
+    # @END clean_menu_item_created_updated_time
+    
+    # @BEGIN clean_menu_page_menu_id
+    # @IN menu_page @AS menu_page_OR_cleaned @URI file:{OR_DIR}/MenuPage.csv
+    # @IN menu      @AS menu_full_cleaned    @URI file:{CLEAN_DIR}/Menu.csv
+    # @OUT menu_page @AS menu_page_full_cleaned @URI file:{CLEAN_DIR}/MenuPage.csv
     menu_page = clean_menu_page_menu_id(menu_page, menu)
+    # @END clean_menu_page_menu_id
+    
+    # @BEGIN clean_menu_item_menu_page_id
+    # @IN menu_item @AS menu_item_correct_update_time
+    # @IN menu_page @AS menu_page_full_cleaned
+    # @OUT menu_item @AS menu_item_with_clean_menu_page_id
     menu_item = clean_menu_item_menu_page_id(menu_item, menu_page)
+    # @END clean_menu_item_menu_page_id
+    
+    # @BEGIN clean_dish_date
+    # @IN menu      @AS menu_full_cleaned @URI file:{CLEAN_DIR}/Menu.csv
+    # @IN menu_page @AS menu_page_full_cleaned
+    # @IN menu_item @AS menu_item_with_clean_menu_page_id
+    # @IN dish      @AS dish_OR_cleaned
+    # @OUT dish @AS dish_with_clean_date
     dish = clean_dish_date(menu, menu_page, menu_item, dish)
+    # @END clean_dish_date
+    
+    # @BEGIN clean_price_dish
+    # @IN menu_item @AS menu_item_with_clean_menu_page_id
+    # @IN dish      @AS dish_with_clean_date
+    # @OUT dish @AS dish_full_cleaned @URI file:{CLEAN_DIR}/Dish.csv
     dish = clean_price_dish(menu_item, dish)
+    # @END clean_price_dish
+    
+    # @BEGIN clean_price_menu_item
+    # @IN menu_item @AS menu_item_with_clean_menu_page_id
+    # @IN dish @AS dish_full_cleaned @URI file:{CLEAN_DIR}/Dish.csv
+    # @OUT menu_item @AS menu_item_with_clean_price
     menu_item = clean_price_menu_item(menu_item, dish)
+    # @END clean_price_menu_item
+    
+    # @BEGIN clean_menu_item_dupe_id_pair
+    # @IN menu_item @AS menu_item_with_clean_price
+    # @OUT menu_item @AS menu_item_no_dupe_id_pairs
     menu_item = clean_menu_item_dupe_id_pair(menu_item)
+    # @END clean_menu_item_dupe_id_pair
+    
+    # @BEGIN clean_menu_item_dish_id
+    # @IN menu_item @AS menu_item_no_dupe_id_pairs
+    # @IN dish @AS dish_full_cleaned @URI file:{CLEAN_DIR}/Dish.csv
+    # @OUT menu_item @AS menu_item_full_cleaned @URI file:{CLEAN_DIR}/MenuItem.csv
     menu_item = clean_menu_item_dish_id(menu_item, dish)
+    # @END clean_menu_item_dish_id
     
-    # Write to file
+
     print('write to file')
-    menu.to_csv(os.path.join(CLEANDIR, 'Menu.csv'))
-    menu_page.to_csv(os.path.join(CLEANDIR, 'MenuPage.csv'))
-    menu_item.to_csv(os.path.join(CLEANDIR, 'MenuItem.csv'))
-    dish.to_csv(os.path.join(CLEANDIR, 'Dish.csv'))
+    menu.to_csv(os.path.join(CLEAN_DIR, 'Menu.csv'))
+    menu_page.to_csv(os.path.join(CLEAN_DIR, 'MenuPage.csv'))
+    menu_item.to_csv(os.path.join(CLEAN_DIR, 'MenuItem.csv'))
+    dish.to_csv(os.path.join(CLEAN_DIR, 'Dish.csv'))
     
+    # @END main
     
     

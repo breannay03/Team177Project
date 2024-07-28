@@ -1,0 +1,79 @@
+digraph Workflow {
+rankdir=TB
+fontname=Courier; fontsize=18; labelloc=t
+label=main
+subgraph cluster_workflow_box_outer { label=""; color=black; penwidth=2
+subgraph cluster_workflow_box_inner { label=""; color=white
+node[shape=box style=filled fillcolor="#CCFFCC" peripheries=1 fontname=Courier]
+load_data
+clean_menu_item_created_updated_time
+clean_menu_page_menu_id
+clean_menu_item_menu_page_id
+clean_dish_date
+clean_price_dish
+clean_price_menu_item
+clean_menu_item_dupe_id_pair
+clean_menu_item_dish_id
+node[shape=box style="rounded,filled" fillcolor="#FFFFCC" peripheries=1 fontname=Helvetica]
+menu_full_cleaned [shape=record rankdir=LR label="{<f0> menu_full_cleaned |<f1> file\:\{CLEAN_DIR\}/Menu.csv}"];
+menu_page_full_cleaned [shape=record rankdir=LR label="{<f0> menu_page_full_cleaned |<f1> file\:\{CLEAN_DIR\}/MenuPage.csv}"];
+menu_item_full_cleaned [shape=record rankdir=LR label="{<f0> menu_item_full_cleaned |<f1> file\:\{CLEAN_DIR\}/MenuItem.csv}"];
+dish_full_cleaned [shape=record rankdir=LR label="{<f0> dish_full_cleaned |<f1> file\:\{CLEAN_DIR\}/Dish.csv}"];
+OR_DIR
+menu_item_OR_cleaned [shape=record rankdir=LR label="{<f0> menu_item_OR_cleaned |<f1> file\:\{OR_DIR\}/MenuItem.csv}"];
+menu_page_OR_cleaned [shape=record rankdir=LR label="{<f0> menu_page_OR_cleaned |<f1> file\:\{OR_DIR\}/MenuPage.csv}"];
+menu_item_correct_update_time
+menu_item_with_clean_menu_page_id
+dish_OR_cleaned [shape=record rankdir=LR label="{<f0> dish_OR_cleaned |<f1> file\:\{OR_DIR\}/Dish.csv}"];
+dish_with_clean_date
+menu_item_with_clean_price
+menu_item_no_dupe_id_pairs
+load_data -> menu_full_cleaned
+load_data -> menu_page_OR_cleaned
+load_data -> menu_item_OR_cleaned
+load_data -> dish_OR_cleaned
+OR_DIR -> load_data
+clean_menu_item_created_updated_time -> menu_item_correct_update_time
+menu_item_OR_cleaned -> clean_menu_item_created_updated_time
+clean_menu_page_menu_id -> menu_page_full_cleaned
+menu_page_OR_cleaned -> clean_menu_page_menu_id
+menu_full_cleaned -> clean_menu_page_menu_id
+clean_menu_item_menu_page_id -> menu_item_with_clean_menu_page_id
+menu_item_correct_update_time -> clean_menu_item_menu_page_id
+menu_page_full_cleaned -> clean_menu_item_menu_page_id
+clean_dish_date -> dish_with_clean_date
+menu_full_cleaned -> clean_dish_date
+menu_page_full_cleaned -> clean_dish_date
+menu_item_with_clean_menu_page_id -> clean_dish_date
+dish_OR_cleaned -> clean_dish_date
+clean_price_dish -> dish_full_cleaned
+menu_item_with_clean_menu_page_id -> clean_price_dish
+dish_with_clean_date -> clean_price_dish
+clean_price_menu_item -> menu_item_with_clean_price
+menu_item_with_clean_menu_page_id -> clean_price_menu_item
+dish_full_cleaned -> clean_price_menu_item
+clean_menu_item_dupe_id_pair -> menu_item_no_dupe_id_pairs
+menu_item_with_clean_price -> clean_menu_item_dupe_id_pair
+clean_menu_item_dish_id -> menu_item_full_cleaned
+menu_item_no_dupe_id_pairs -> clean_menu_item_dish_id
+dish_full_cleaned -> clean_menu_item_dish_id
+}}
+subgraph cluster_input_ports_group_outer { label=""; color=white
+subgraph cluster_input_ports_group_inner { label=""; color=white
+node[shape=circle style="rounded,filled" fillcolor="#FFFFFF" peripheries=1 fontname=Helvetica width=0.2]
+OR_DIR_input_port [label=""]
+}}
+subgraph cluster_output_ports_group_outer { label=""; color=white
+subgraph cluster_output_ports_group_inner { label=""; color=white
+node[shape=circle style="rounded,filled" fillcolor="#FFFFFF" peripheries=1 fontname=Helvetica width=0.2]
+menu_full_cleaned_output_port [label=""]
+menu_page_full_cleaned_output_port [label=""]
+menu_item_full_cleaned_output_port [label=""]
+dish_full_cleaned_output_port [label=""]
+}}
+OR_DIR_input_port -> OR_DIR
+menu_full_cleaned -> menu_full_cleaned_output_port
+menu_page_full_cleaned -> menu_page_full_cleaned_output_port
+menu_item_full_cleaned -> menu_item_full_cleaned_output_port
+dish_full_cleaned -> dish_full_cleaned_output_port
+}

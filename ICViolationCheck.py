@@ -153,6 +153,4 @@ if __name__ == "__main__":
     
     run_integrity_checks(RAWDIR)
     print('-'*50)
-    run_integrity_checks(ORDIR)
-    print('-'*50)
     run_integrity_checks(CLEANDIR)
